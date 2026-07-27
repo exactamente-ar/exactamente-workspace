@@ -41,6 +41,10 @@ Ojo con dos cosas que se confunden seguido:
 Cada repo tiene su propia documentación (`CLAUDE.md` o `AGENTS.md`) con sus reglas, comandos y
 convenciones. Se carga sola cuando tocás sus archivos — no la dupliques acá.
 
+Los 4 comparten el mismo piso de calidad: prettier, eslint, typecheck, tests, lefthook,
+commitlint y CI. Los comandos se llaman igual en todos (`test`, `lint`, `typecheck`,
+`format:check`) aunque el runner cambie — `bun` en el backend, `pnpm` en el resto.
+
 ---
 
 ## ⚠️ Producción

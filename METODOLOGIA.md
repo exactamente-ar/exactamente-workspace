@@ -91,7 +91,7 @@ otros repos.
 
 ### 5. Gates automáticos
 
-Corren solos, no hay que acordarse:
+Corren solos en los 4 repos, no hay que acordarse:
 
 | Cuándo | Qué |
 |---|---|
@@ -100,8 +100,17 @@ Corren solos, no hay que acordarse:
 | `push` | typecheck + suite completa |
 | PR | CI: typecheck, lint, format:check, test, build |
 
+El backend suma un job de `docker build`: `main` despliega a producción vía Dokploy, así que
+si la imagen no compila conviene enterarse en el PR y no en el servidor.
+
 Si un hook te molesta, arreglá la causa. `--no-verify` es para emergencias reales, no para
 apurar un commit.
+
+**Los tests no pueden depender de tu `.env`.** Ya pasó en el backend: `env-setup.ts` no
+seteaba todas las variables que exige `env.ts`, los tests tomaban el resto del `.env` del dev
+y pasaban en local, pero en CI la suite ni arrancaba. Si agregás una variable obligatoria,
+agregala también al setup de tests. Se comprueba fácil: movés el `.env` fuera del repo y
+corrés la suite.
 
 ### 6. PR por repo
 
