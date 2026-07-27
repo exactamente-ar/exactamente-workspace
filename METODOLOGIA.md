@@ -117,6 +117,18 @@ corrés la suite.
 Uno por repo afectado, referenciando la story. CI en verde es requisito — está configurado
 como bloqueante, no vas a poder mergear en rojo.
 
+| Repo | Rama protegida | Checks requeridos |
+|---|---|---|
+| `exactamente-backend` | `main` | `quality`, `docker` |
+| `exactamente-frontend` | `master` | `quality` |
+| `exactamente-mcp` | `main` | `quality` |
+| `exactamente-frontend-admin` | — | **sin protección** |
+
+**El admin es la excepción**, y no por decisión: es el único repo privado, y GitHub no permite
+branch protection en repos privados fuera del plan Pro. El CI corre igual y falla igual, pero
+nada impide mergear en rojo. Hasta que se resuelva —haciéndolo público o pagando Pro— ahí la
+disciplina es manual: mirá el check antes de mergear.
+
 En el cuerpo del PR: qué cambia, por qué, y cómo verificarlo.
 
 ### 7. Mergear en orden de dependencia
