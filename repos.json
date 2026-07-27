@@ -1,0 +1,45 @@
+{
+  "org": "exactamente-ar",
+  "repos": [
+    {
+      "name": "exactamente-backend",
+      "url": "https://github.com/exactamente-ar/exactamente-backend.git",
+      "branch": "main",
+      "pm": "bun",
+      "port": 3000,
+      "description": "API REST — Bun + Hono + Drizzle + PostgreSQL + R2",
+      "deploy": "Dokploy (Hetzner) — auto-deploy al pushear a main",
+      "needsDocker": true
+    },
+    {
+      "name": "exactamente-frontend",
+      "url": "https://github.com/exactamente-ar/exactamente-frontend.git",
+      "branch": "master",
+      "pm": "pnpm",
+      "port": 4321,
+      "description": "Sitio público — Astro 5 con islands de React",
+      "deploy": "Vercel — auto-deploy al pushear a master",
+      "needsDocker": false
+    },
+    {
+      "name": "exactamente-frontend-admin",
+      "url": "https://github.com/exactamente-ar/exactamente-frontend-admin.git",
+      "branch": "main",
+      "pm": "pnpm",
+      "port": 5173,
+      "description": "Panel de administración — React 19 + Vite",
+      "deploy": "Vercel",
+      "needsDocker": false
+    },
+    {
+      "name": "exactamente-mcp",
+      "url": "https://github.com/exactamente-ar/exactamente-mcp.git",
+      "branch": "main",
+      "pm": "pnpm",
+      "port": 3001,
+      "description": "Servidor MCP — xmcp sobre Cloudflare Workers",
+      "deploy": "Cloudflare Workers — wrangler deploy",
+      "needsDocker": false
+    }
+  ]
+}

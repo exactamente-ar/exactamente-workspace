@@ -1,0 +1,30 @@
+# ─────────────────────────────────────────────────────────────
+# Los 4 repos de producto tienen su propio repositorio en GitHub.
+# Este workspace los orquesta pero NO los versiona.
+# `./setup.sh` los clona. Ver repos.json.
+# ─────────────────────────────────────────────────────────────
+exactamente-backend/
+exactamente-frontend/
+exactamente-frontend-admin/
+exactamente-mcp/
+
+# Dependencias
+node_modules/
+
+# Secretos — nunca versionar
+.env
+.env.*
+!.env.example
+
+# BMad: la config de equipo se versiona; la personal no.
+_bmad/config.user.toml
+
+# Claude Code: settings.json se versiona (permisos del equipo),
+# settings.local.json es personal.
+.claude/settings.local.json
+
+# Índice de CodeGraph — se regenera, pesa, y es por máquina
+.codegraph/
+
+# macOS
+.DS_Store

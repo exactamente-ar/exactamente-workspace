@@ -1,0 +1,156 @@
+# Metodología
+
+Cómo se trabaja en Exactamente. Cuatro repos separados, una sola forma de tocarlos.
+
+---
+
+## Arrancar en una máquina nueva
+
+```bash
+git clone https://github.com/exactamente-ar/exactamente-workspace.git
+cd exactamente-workspace
+./setup.sh
+```
+
+`setup.sh` verifica prerequisitos, clona los 4 repos, instala dependencias con el gestor
+correcto de cada uno, crea los `.env` desde los `.env.example`, levanta PostgreSQL y aplica
+las migraciones. Es idempotente — corrélo las veces que quieras.
+
+Después completá los secretos que te haya listado y ya podés levantar todo:
+
+| Repo | Comando | Puerto |
+|---|---|---|
+| `exactamente-backend` | `bun dev` | 3000 |
+| `exactamente-frontend` | `pnpm dev` | 4321 |
+| `exactamente-frontend-admin` | `pnpm dev` | 5173 |
+| `exactamente-mcp` | `pnpm dev` | 3001 |
+
+El backend necesita Docker corriendo (PostgreSQL). Los otros tres no.
+
+### Variables de entorno
+
+| Repo | Qué necesita |
+|---|---|
+| backend | `DATABASE_URL`, `JWT_SECRET` (≥32 chars), `CORS_ORIGIN`, `ADMIN_ORIGIN`, credenciales de R2, `GOOGLE_CLIENT_ID` / `_SECRET` / `_REDIRECT_URI`, `RESEND_API_KEY` |
+| frontend | `PUBLIC_API_URL` |
+| admin | `VITE_API_URL` |
+| mcp | URL base de la API |
+
+Los `.env.example` son la fuente de verdad. Si agregás una variable, actualizá el `.example`
+en el mismo PR — si no, el `setup.sh` de la próxima persona genera un `.env` incompleto.
+
+---
+
+## El ciclo de una feature
+
+### 1. Planificar — en el workspace
+
+Desde la raíz, con BMad. El PRD y las stories quedan en `_bmad-output/planning-artifacts/`.
+
+Cada story tiene que declarar **qué repos toca**. Es la información que evita descubrir a
+mitad de camino que faltaba media feature en otro lado.
+
+Para algo chico (un fix, un ajuste de copy) esto es innecesario. Se planifica lo que cruza
+repos o lo que tiene más de un par de pasos.
+
+### 2. Rama — el mismo nombre en cada repo
+
+```bash
+git -C exactamente-backend  checkout -b juanpe44/materias-por-plan
+git -C exactamente-frontend checkout -b juanpe44/materias-por-plan
+```
+
+Mismo nombre = mirás la lista de ramas de cualquier repo y sabés qué está en vuelo.
+
+### 3. Implementar — backend primero, siempre
+
+**Esta es la regla que más duele romper.** El contrato de la API se define y se **mergea** en
+`main` del backend antes de que cualquier cliente lo consuma.
+
+Mientras el contrato siga tipeado a mano en 4 repos (ver el TODO en `CLAUDE.md`), esto es lo
+único que impide que el admin quede pegándole a endpoints que no existen. Ya pasó: la feature
+de materias agrupadas se mergeó en el admin con el backend todavía en rama, y quedó rota en
+producción hasta que se dio de baja.
+
+Dentro de cada repo, las reglas son las de ese repo:
+
+- `exactamente-frontend/AGENTS.md` — Astro no es Next, TDD obligatorio, production-first
+- `exactamente-backend/CLAUDE.md` + los `CLAUDE.*.md` por módulo
+- `exactamente-frontend-admin/CLAUDE.md`
+
+### 4. TDD
+
+Test que falla primero, y **verlo fallar**. Después el código mínimo para que pase.
+
+Un test que pasa de entrada no probó nada: puede estar verde porque la aserción es trivial,
+porque el mock devuelve lo que espera, o porque no ejecuta lo que creés. Verlo en rojo es lo
+que le da valor.
+
+Qué rinde testear y qué no está detallado en el `AGENTS.md` del frontend; aplica igual en los
+otros repos.
+
+### 5. Gates automáticos
+
+Corren solos, no hay que acordarse:
+
+| Cuándo | Qué |
+|---|---|
+| `commit` | prettier sobre los archivos staged, eslint, tests afectados |
+| mensaje de commit | commitlint (Conventional Commits) |
+| `push` | typecheck + suite completa |
+| PR | CI: typecheck, lint, format:check, test, build |
+
+Si un hook te molesta, arreglá la causa. `--no-verify` es para emergencias reales, no para
+apurar un commit.
+
+### 6. PR por repo
+
+Uno por repo afectado, referenciando la story. CI en verde es requisito — está configurado
+como bloqueante, no vas a poder mergear en rojo.
+
+En el cuerpo del PR: qué cambia, por qué, y cómo verificarlo.
+
+### 7. Mergear en orden de dependencia
+
+**backend → clientes.** Nunca al revés.
+
+Acordate de lo que significa en el backend: mergear a `main` **despliega a producción**
+automáticamente vía Dokploy. No es un merge más.
+
+### 8. Cerrar
+
+Borrá las ramas mergeadas. Los artefactos de la feature (retro, decisiones) quedan en
+`_bmad-output/`, no dispersos por repo.
+
+---
+
+## Cuando una feature se da de baja
+
+Pasa, y está bien que pase. Lo importante es no dejar código muerto ni perder el trabajo:
+
+1. **Taggear antes de borrar**: `archive/<nombre-feature>` apuntando al último commit, pusheado.
+   Recuperable para siempre, sin ensuciar la lista de ramas.
+2. **Mirar qué más entró en esos commits.** Un commit rara vez es una sola feature. Antes de
+   revertir, revisá archivo por archivo qué es de la feature que se va y qué no.
+3. **Remoción quirúrgica, no `git revert`** del merge, salvo que hayas confirmado que el commit
+   contenía únicamente esa feature.
+
+Precedente: `archive/materias-agrupadas` (backend, frontend, admin). El commit del admin
+mezclaba Subject Groups con detección de duplicados — un revert habría roto una feature viva.
+
+---
+
+## Convenciones de git
+
+- Ramas: `juanpe44/<nombre-descriptivo>`
+- Commits: Conventional Commits (`feat:`, `fix:`, `chore:`, `test:`, `docs:`, `refactor:`, `ci:`, `style:`)
+- Autoría: `--author="juanpe44 <juanpe44@users.noreply.github.com>"`
+- Ramas por defecto: `master` en el frontend, `main` en los otros tres
+
+---
+
+## Contenido y comunidad
+
+`content/` tiene su propio `CLAUDE.md` con el rol de community manager. Está en este repo
+porque es parte del proyecto, pero no se mezcla con el desarrollo: si vas a trabajar
+contenido, abrí Claude directamente en `content/`.

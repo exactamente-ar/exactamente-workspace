@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "skills": {
+    "skill-creator": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/skill-creator/SKILL.md",
+      "computedHash": "5ea13a6d9f0d4bb694405d79acd00cadec0d21bb138c4dd10fcf3c500cb835c2"
+    },
+    "data-visualization": {
+      "source": "anthropics/knowledge-work-plugins",
+      "sourceType": "github",
+      "skillPath": "data/skills/data-visualization/SKILL.md",
+      "computedHash": "64055493de5ff4afed716cc871018cf6e020338b76d3e7ed5c2985707cb43cec"
+    },
+    "design-system": {
+      "source": "affaan-m/everything-claude-code",
+      "sourceType": "github",
+      "skillPath": "skills/design-system/SKILL.md",
+      "computedHash": "e94439a0e2704d3802c2c5b393444a65afd2a5e0f2b0809e5ec9189452f4734b"
+    },
+    "ux-designer": {
+      "source": "shubhamsaboo/awesome-llm-apps",
+      "sourceType": "github",
+      "skillPath": "awesome_agent_skills/ux-designer/SKILL.md",
+      "computedHash": "1178ae59d9dd5ca71122674d85bd78d746b3b95f76c58c65cb0fd48dd54bea45"
+    }
+  }
+}
