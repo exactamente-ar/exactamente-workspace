@@ -100,22 +100,50 @@ El detalle está en `METODOLOGIA.md`. Lo que no se negocia:
 
 ---
 
-## TODO — contrato de API compartido
+## El contrato de la API
 
-El mismo shape está tipeado **a mano en 4 lugares**, sin nada que verifique que coincidan:
+El backend publica su contrato y los 3 clientes generan sus tipos desde ahí. **Nadie escribe a
+mano los tipos de la API.**
 
+| Dónde | Qué |
+|---|---|
+| `exactamente-backend/src/schemas/` | La fuente: ~12 entidades en Zod |
+| `exactamente-backend/openapi.json` | El spec generado, versionado |
+| `/docs` y `/openapi.json` | La referencia navegable, servida por el backend |
+| `<cliente>/src/**/api.d.ts` | Los tipos generados, versionados |
+
+### Cambiar la forma de una respuesta
+
+```bash
+# 1. editás el schema en exactamente-backend/src/schemas/
+cd exactamente-backend && bun run gen:openapi     # y commiteás openapi.json
+
+# 2. en cada cliente afectado
+cd ../exactamente-frontend-admin && pnpm gen:api  # y arreglás lo que TS marque
 ```
-exactamente-backend/src/types
-exactamente-frontend/src/shared/types  +  src/features/*/types
-exactamente-frontend-admin/src/api/*.ts
-exactamente-mcp/src/types
-```
 
-Por eso existe la regla de "backend primero": es la única protección contra el drift hoy.
+**Los dos pasos, o el CI de alguno de los cuatro repos se pone en rojo.** `check:openapi` en el
+backend y `check:api` en cada cliente fallan si lo commiteado no coincide con lo generado. Eso
+convierte el olvido en imposible, en vez de improbable.
 
-Camino cuando se retome: el backend ya valida todo con Zod, así que `@hono/zod-openapi` expone
-un `/openapi.json` y los 3 clientes generan tipos con `openapi-typescript`. Fuente única, sin
-escribir tipos a mano.
+El orden "backend primero" ya no es solo disciplina: los clientes leen el spec del `main` del
+backend, así que no pueden mergear contra un contrato que todavía no está mergeado.
+
+### Cómo se engancha cada cliente
+
+- **`admin`** y **`mcp`**: alias directos, sus tipos eran un espejo de la API.
+- **`frontend`**: `Pick` de los campos que usa. Sus tipos son view models que mezclan datos de
+  la API con datos locales (las correlativas salen de constantes del repo), así que un alias
+  completo mezclaría dominios. La garantía es la misma.
+
+### Lo que esto NO garantiza
+
+Que el schema coincida con lo que el handler **devuelve de verdad**. `hono-openapi` no compara
+el `c.json()` contra el schema declarado: si escribís mal un schema, el contrato queda coherente
+entre los 4 repos y equivocado en los 4.
+
+Cerrarlo requiere tests de contrato — levantar la app en CI con un postgres de servicio, pegarle
+a cada endpoint y validar la respuesta real. Pendiente.
 
 ---
 

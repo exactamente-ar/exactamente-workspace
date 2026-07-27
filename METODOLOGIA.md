@@ -64,13 +64,23 @@ Mismo nombre = mirás la lista de ramas de cualquier repo y sabés qué está en
 
 ### 3. Implementar — backend primero, siempre
 
-**Esta es la regla que más duele romper.** El contrato de la API se define y se **mergea** en
-`main` del backend antes de que cualquier cliente lo consuma.
+**El contrato de la API se define y se mergea en `main` del backend antes de que cualquier
+cliente lo consuma.**
 
-Mientras el contrato siga tipeado a mano en 4 repos (ver el TODO en `CLAUDE.md`), esto es lo
-único que impide que el admin quede pegándole a endpoints que no existen. Ya pasó: la feature
-de materias agrupadas se mergeó en el admin con el backend todavía en rama, y quedó rota en
-producción hasta que se dio de baja.
+Esto ya no depende de que te acuerdes. Si tu feature cambia una respuesta:
+
+```bash
+cd exactamente-backend && bun run gen:openapi   # commiteá openapi.json
+cd ../exactamente-frontend-admin && pnpm gen:api  # arreglá lo que TS marque
+```
+
+Los clientes leen el spec del `main` del backend, así que su CI falla si intentás mergear
+contra un contrato que todavía no está mergeado. Y si cambiaste el código del backend sin
+regenerar, `check:openapi` te frena ahí mismo.
+
+Antes esto era solo disciplina, y por eso murió `materias-agrupadas`: se mergeó en el admin con
+el backend todavía en rama y quedó rota en producción hasta que se dio de baja. Ahora el orden
+lo impone la máquina.
 
 Dentro de cada repo, las reglas son las de ese repo:
 
