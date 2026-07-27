@@ -78,17 +78,32 @@ done
 
 step "Instalando dependencias"
 
+LOG_DIR="$(mktemp -d)"
+
 for i in $(seq 0 $((REPO_COUNT - 1))); do
   NAME="$(jq -r ".repos[$i].name" repos.json)"
   PM="$(jq   -r ".repos[$i].pm"   repos.json)"
+  LOG="$LOG_DIR/$NAME.log"
+
+  case "$PM" in
+    bun|pnpm) ;;
+    *) die "Gestor desconocido '$PM' para $NAME (revisá repos.json)" ;;
+  esac
 
   printf '  %s…%s %s (%s)\r' "$DIM" "$OFF" "$NAME" "$PM"
-  case "$PM" in
-    bun)  (cd "$NAME" && bun install  --frozen-lockfile >/dev/null 2>&1) ;;
-    pnpm) (cd "$NAME" && pnpm install --frozen-lockfile >/dev/null 2>&1) ;;
-    *)    die "Gestor desconocido '$PM' para $NAME (revisá repos.json)" ;;
-  esac
-  ok "$NAME $DIM($PM)$OFF                    "
+
+  # --frozen-lockfile es lo correcto: instala exactamente lo que dice el
+  # lockfile. Si el lockfile falta o quedó desactualizado, NO lo resolvemos
+  # por atrás: instalar algo distinto a lo que corre en CI es peor que fallar.
+  if (cd "$NAME" && "$PM" install --frozen-lockfile) >"$LOG" 2>&1; then
+    ok "$NAME $DIM($PM)$OFF                    "
+  else
+    printf '\n'
+    printf '  %s✗%s %s%s falló al instalar%s\n\n' "$RED" "$OFF" "$BOLD" "$NAME" "$OFF"
+    sed 's/^/      /' "$LOG" | tail -20
+    printf '\n'
+    die "Arreglá eso y volvé a correr ./setup.sh  ${DIM}(log completo: $LOG)${OFF}"
+  fi
 done
 
 # ─── Archivos de entorno ─────────────────────────────────────────────────────
@@ -134,9 +149,13 @@ if docker info >/dev/null 2>&1; then
     && ok "extensión unaccent habilitada" \
     || warn "no se pudo habilitar unaccent — corré: docker compose exec postgres psql -U postgres -d exactamente -c 'CREATE EXTENSION IF NOT EXISTS unaccent;'"
 
-  (cd exactamente-backend && bun db:migrate >/dev/null 2>&1) \
-    && ok "migraciones aplicadas" \
-    || warn "las migraciones fallaron — probá a mano: cd exactamente-backend && bun db:migrate"
+  if (cd exactamente-backend && bun db:migrate) >"$LOG_DIR/migrate.log" 2>&1; then
+    ok "migraciones aplicadas"
+  else
+    warn "las migraciones fallaron:"
+    sed 's/^/      /' "$LOG_DIR/migrate.log" | tail -10
+    warn "reintentá con: cd exactamente-backend && bun db:migrate"
+  fi
 else
   warn "Docker no está corriendo — arrancalo y después: cd exactamente-backend && docker compose up -d && bun db:migrate"
 fi
