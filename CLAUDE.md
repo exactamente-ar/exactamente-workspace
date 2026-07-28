@@ -41,6 +41,10 @@ Ojo con dos cosas que se confunden seguido:
 Cada repo tiene su propia documentación (`CLAUDE.md` o `AGENTS.md`) con sus reglas, comandos y
 convenciones. Se carga sola cuando tocás sus archivos — no la dupliques acá.
 
+⚠️ **`exactamente-mcp` todavía no tiene la suya.** Ahí no se carga nada: hay que leerle el
+`package.json` y el `lefthook.yml` antes de tocar código. Y su `README.md` dice `npm`, que en ese
+repo rompe `gen:api` — usa pnpm como los otros dos clientes.
+
 Los 4 comparten el mismo piso de calidad: prettier, eslint, typecheck, tests, lefthook,
 commitlint y CI. Los comandos se llaman igual en todos (`test`, `lint`, `typecheck`,
 `format:check`) aunque el runner cambie — `bun` en el backend, `pnpm` en el resto.
@@ -129,6 +133,9 @@ convierte el olvido en imposible, en vez de improbable.
 El orden "backend primero" ya no es solo disciplina: los clientes leen el spec del `main` del
 backend, así que no pueden mergear contra un contrato que todavía no está mergeado.
 
+Hay un hook que avisa en el momento: al editar `src/schemas/`, si `openapi.json` quedó atrás,
+`.claude/hooks/openapi-drift.sh` lo dice sin esperar al CI. Se apaga solo al regenerar.
+
 ### Cómo se engancha cada cliente
 
 - **`admin`** y **`mcp`**: alias directos, sus tipos eran un espejo de la API.
@@ -147,6 +154,36 @@ a cada endpoint y validar la respuesta real. Pendiente.
 
 ---
 
+## CodeGraph — el único índice que cruza los 4 repos
+
+`.codegraph/` en la raíz indexa **los 4 repos juntos** en un grafo de símbolos. Es la única
+herramienta del workspace que los ve como una sola cosa: `grep` no cruza fronteras de repo, y
+`Read` te obliga a saber de antemano qué archivo abrir.
+
+**Antes de grep/find/Read, `codegraph_explore`.** Una llamada devuelve el código fuente verbatim
+de los símbolos relevantes agrupado por archivo, más quién los llama.
+
+### Para qué sirve acá, concretamente
+
+Antes de cambiar un schema en `exactamente-backend/src/schemas/`, preguntale por el símbolo. Te
+da los consumidores **en los 3 clientes**, no solo en el backend. Ese es el paso que hoy se hace
+a ojo y es la causa de que un cambio de contrato aparezca roto recién en el CI de otro repo.
+
+```bash
+codegraph explore "ResourceSchema AdminResource"   # CLI, mismo output que el MCP
+codegraph status                                    # 345 archivos, 4 repos
+```
+
+Devuelve además un "blast radius" por símbolo, con aviso cuando algo no tiene tests que lo cubran.
+
+### Dos reglas
+
+- **No indexar por repo.** El índice de la raíz ya los incluye. Uno local queda viejo, y gana por
+  cwd sobre el bueno — ya pasó con `exactamente-frontend`.
+- El índice se regenera y pesa ~9 MB: está gitignoreado. `setup.sh` lo crea en una máquina nueva.
+
+---
+
 ## Estructura
 
 ```
@@ -154,8 +191,12 @@ CLAUDE.md            este archivo — contexto de desarrollo
 METODOLOGIA.md       cómo se trabaja una feature, de punta a punta
 setup.sh             levanta todo en una máquina nueva
 repos.json           mapa de los 4 repos (url, rama, gestor, puerto)
+skills-lock.json     skills vendorizadas que no instala BMad — setup.sh verifica sus hashes
 .claude/skills/      skills compartidas + las de BMad
+.claude/settings.json  permisos de codegraph + superpowers off (BMad es la metodología acá)
+.claude/hooks/       avisos automáticos — hoy solo el drift de openapi.json
 .mcp.json            servidores MCP del workspace (codegraph)
+.codegraph/          índice de los 4 repos — gitignoreado, lo crea setup.sh
 _bmad/               metodología BMad — instalación única, acá
 _bmad-output/        PRDs, épicas, stories, artefactos de test
 content/             community manager — tiene su propio CLAUDE.md

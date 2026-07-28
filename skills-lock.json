@@ -1,29 +1,31 @@
 {
-  "version": 1,
+  "version": 2,
+  "comment": "Skills vendorizadas en .claude/skills/ que NO instala BMad. Vienen con el clone; setup.sh solo verifica que sigan intactas y de dónde salieron. Un hash que no coincide significa que alguien la editó a mano — puede estar bien, pero conviene saberlo antes de traer una versión nueva de upstream.",
   "skills": {
     "skill-creator": {
       "source": "anthropics/skills",
       "sourceType": "github",
       "skillPath": "skills/skill-creator/SKILL.md",
-      "computedHash": "5ea13a6d9f0d4bb694405d79acd00cadec0d21bb138c4dd10fcf3c500cb835c2"
+      "sha256": "dcd4803e61e913e6fc27294184cd3a71f09f5e924ff20c8a9a20173e7b3c2bcf"
     },
-    "data-visualization": {
-      "source": "anthropics/knowledge-work-plugins",
-      "sourceType": "github",
-      "skillPath": "data/skills/data-visualization/SKILL.md",
-      "computedHash": "64055493de5ff4afed716cc871018cf6e020338b76d3e7ed5c2985707cb43cec"
+    "systematic-debugging": {
+      "source": "superpowers@claude-plugins-official",
+      "sourceType": "plugin",
+      "skillPath": "skills/systematic-debugging/SKILL.md",
+      "sha256": "379875f23d4b0aac203626d618c2cc9109f5e490b36a255cd1a1b28b991fa23e",
+      "modified": "Dos referencias a skills de superpowers repuntadas: test-driven-development → bmad-testarch-atdd, y verification-before-completion → los gates del repo."
     },
-    "design-system": {
-      "source": "affaan-m/everything-claude-code",
-      "sourceType": "github",
-      "skillPath": "skills/design-system/SKILL.md",
-      "computedHash": "e94439a0e2704d3802c2c5b393444a65afd2a5e0f2b0809e5ec9189452f4734b"
+    "using-git-worktrees": {
+      "source": "superpowers@claude-plugins-official",
+      "sourceType": "plugin",
+      "skillPath": "skills/using-git-worktrees/SKILL.md",
+      "sha256": "8cfb86f121269e8f7f12361e6795c4f6738828340e28964c9229d365666c9edd"
     },
-    "ux-designer": {
-      "source": "shubhamsaboo/awesome-llm-apps",
-      "sourceType": "github",
-      "skillPath": "awesome_agent_skills/ux-designer/SKILL.md",
-      "computedHash": "1178ae59d9dd5ca71122674d85bd78d746b3b95f76c58c65cb0fd48dd54bea45"
+    "dispatching-parallel-agents": {
+      "source": "superpowers@claude-plugins-official",
+      "sourceType": "plugin",
+      "skillPath": "skills/dispatching-parallel-agents/SKILL.md",
+      "sha256": "1968923066f3b707eb01d1992cdf4c42284c3855f70253b9cd5000ff45fca13c"
     }
   }
 }

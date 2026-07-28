@@ -33,12 +33,15 @@ step "Verificando prerequisitos"
 MISSING=()
 need() { command -v "$1" >/dev/null 2>&1 || MISSING+=("$1  → $2"); }
 
-need git    "https://git-scm.com/"
-need jq     "brew install jq"
-need bun    "https://bun.sh/  (curl -fsSL https://bun.sh/install | bash)"
-need pnpm   "https://pnpm.io/installation  (npm i -g pnpm)"
-need node   "https://nodejs.org/  (v22, la misma que usa Vercel en producción)"
-need docker "https://docs.docker.com/get-docker/  (para el PostgreSQL del backend)"
+need git     "https://git-scm.com/"
+need jq      "brew install jq"
+need bun     "https://bun.sh/  (curl -fsSL https://bun.sh/install | bash)"
+need pnpm    "https://pnpm.io/installation  (npm i -g pnpm)"
+need node    "https://nodejs.org/  (v22, la misma que usa Vercel en producción)"
+need docker  "https://docs.docker.com/get-docker/  (para el PostgreSQL del backend)"
+# Casi todas las skills de BMad resuelven su config con scripts de _bmad/scripts/*.py.
+# Ojo: piden python3, no `python` — en macOS `python` a secas no existe.
+need python3 "https://www.python.org/downloads/  (lo usan las skills de BMad)"
 
 if [ ${#MISSING[@]} -gt 0 ]; then
   printf '\n%sFaltan estas herramientas:%s\n\n' "$BOLD" "$OFF"
@@ -52,7 +55,18 @@ if [ "$NODE_MAJOR" -lt 22 ]; then
 else
   ok "node v$(node -p 'process.versions.node')"
 fi
-ok "git, jq, bun, pnpm, docker"
+ok "git, jq, bun, pnpm, docker, python3"
+
+# codegraph no bloquea: sin él los repos levantan igual, solo se pierde el índice
+# cross-repo. Pero .mcp.json lo declara, así que si falta el MCP arranca roto.
+if command -v codegraph >/dev/null 2>&1; then
+  ok "codegraph $DIM($(codegraph --version 2>/dev/null || echo '?'))$OFF"
+  HAS_CODEGRAPH=1
+else
+  HAS_CODEGRAPH=0
+  warn "codegraph no está instalado — .mcp.json lo declara y va a fallar al levantar"
+  warn "  instalalo con: npm i -g @colbymchenry/codegraph"
+fi
 
 # ─── Clonar / actualizar los repos ───────────────────────────────────────────
 
@@ -158,6 +172,69 @@ if docker info >/dev/null 2>&1; then
   fi
 else
   warn "Docker no está corriendo — arrancalo y después: cd exactamente-backend && docker compose up -d && bun db:migrate"
+fi
+
+# ─── Índice de CodeGraph ─────────────────────────────────────────────────────
+
+step "Índice de CodeGraph"
+
+if [ "$HAS_CODEGRAPH" = "1" ]; then
+  # Se indexa desde la raíz a propósito: así el grafo cubre los 4 repos a la vez
+  # y se puede preguntar por los consumidores de un schema del backend en los
+  # clientes. Un .codegraph/ dentro de un repo gana por cwd y queda desactualizado.
+  if [ -d .codegraph ]; then
+    if codegraph sync >"$LOG_DIR/codegraph.log" 2>&1; then
+      ok "índice sincronizado $DIM(ya existía)$OFF"
+    else
+      warn "el sync falló — reintentá con: codegraph sync"
+    fi
+  else
+    printf '  %s…%s indexando los 4 repos (tarda un rato la primera vez)\r' "$DIM" "$OFF"
+    if codegraph init . >"$LOG_DIR/codegraph.log" 2>&1; then
+      ok "índice creado                                                    "
+    else
+      printf '\n'
+      warn "no se pudo indexar:"
+      sed 's/^/      /' "$LOG_DIR/codegraph.log" | tail -10
+      warn "reintentá con: codegraph init ."
+    fi
+  fi
+
+  for r in exactamente-backend exactamente-frontend exactamente-frontend-admin exactamente-mcp; do
+    [ -d "$r/.codegraph" ] && warn "$r tiene su propio .codegraph/ — gana por cwd y queda viejo; borralo"
+  done
+else
+  warn "sin codegraph, sin índice — los agentes caen a grep y pierden la vista cross-repo"
+fi
+
+# ─── Skills vendorizadas ─────────────────────────────────────────────────────
+
+step "Verificando skills vendorizadas"
+
+# skills-lock.json declara las skills de .claude/skills/ que NO instala BMad.
+# Vienen con el clone: acá solo se comprueba que sigan siendo las que se anotaron.
+SKILL_DRIFT=0
+
+while IFS=$'\t' read -r SKILL_NAME SKILL_SHA; do
+  SKILL_FILE=".claude/skills/$SKILL_NAME/SKILL.md"
+
+  if [ ! -f "$SKILL_FILE" ]; then
+    warn "$SKILL_NAME falta $DIM(declarada en skills-lock.json)$OFF"
+    SKILL_DRIFT=1
+    continue
+  fi
+
+  ACTUAL="$(shasum -a 256 "$SKILL_FILE" | cut -d' ' -f1)"
+  if [ "$ACTUAL" = "$SKILL_SHA" ]; then
+    ok "$SKILL_NAME"
+  else
+    warn "$SKILL_NAME cambió desde que se anotó su hash — revisalo antes de actualizarla"
+    SKILL_DRIFT=1
+  fi
+done < <(jq -r '.skills | to_entries[] | "\(.key)\t\(.value.sha256)"' skills-lock.json)
+
+if [ "$SKILL_DRIFT" = "1" ]; then
+  warn "si los cambios son a propósito, actualizá los hashes en skills-lock.json"
 fi
 
 # ─── Listo ───────────────────────────────────────────────────────────────────
