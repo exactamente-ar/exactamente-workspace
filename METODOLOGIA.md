@@ -127,12 +127,21 @@ corrés la suite.
 Uno por repo afectado, referenciando la story. CI en verde es requisito — está configurado
 como bloqueante, no vas a poder mergear en rojo.
 
-| Repo | Rama protegida | Checks requeridos |
-|---|---|---|
-| `exactamente-backend` | `main` | `quality`, `docker` |
-| `exactamente-frontend` | `master` | `quality` |
-| `exactamente-mcp` | `main` | `quality` |
-| `exactamente-frontend-admin` | — | **sin protección** |
+| Repo | Rama protegida | Checks requeridos | Quién puede mergear |
+|---|---|---|---|
+| `exactamente-backend` | `main` | `quality`, `docker` | solo `juanpe44` |
+| `exactamente-frontend` | `master` | `quality` | solo `juanpe44` |
+| `exactamente-mcp` | `main` | `quality` | solo `juanpe44` |
+| `exactamente-frontend-admin` | — | **sin protección** | cualquiera con write |
+
+En los tres protegidos, `restrictions` limita el merge a `juanpe44` y `enforce_admins` está en
+`true`: la protección aplica también a los admins del repo, incluido quien la configuró. Nadie
+mergea en rojo, y los otros dos admins (`d4rm5`, `OliverioBPapuccioF`) no mergean a la rama
+protegida aunque conserven el rol.
+
+Consecuencia práctica: si un check requerido no llega a correr —típico en el backend, donde
+`docker` puede no dispararse en un PR que no toca el build— el PR queda bloqueado y **no hay
+bypass**. Se destraba haciendo que el check corra, no salteándolo.
 
 **El admin es la excepción**, y no por decisión: es el único repo privado, y GitHub no permite
 branch protection en repos privados fuera del plan Pro. El CI corre igual y falla igual, pero
