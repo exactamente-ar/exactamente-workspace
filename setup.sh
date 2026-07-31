@@ -259,6 +259,11 @@ cat <<EOF
   ${BOLD}Trabajar con Claude${OFF}
 
     Abrí Claude ${BOLD}en esta carpeta${OFF}, no dentro de un repo.
-    El porqué está en CLAUDE.md. El flujo de trabajo, en METODOLOGIA.md.
+    El porqué está en AGENTS.md. El flujo de trabajo, en CONTRIBUTING.md.
+
+  ${BOLD}Si es tu primera vez acá${OFF}
+
+    README.md  → qué es esto           CONTRIBUTING.md → cómo colaborar
+    COLLABORATORS.md → quién es quién  METODOLOGIA.md  → el detalle completo
 
 EOF
