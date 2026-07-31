@@ -26,5 +26,9 @@ _bmad/config.user.toml
 # Índice de CodeGraph — se regenera, pesa, y es por máquina
 .codegraph/
 
+# Contenido y marketing: material interno de la marca, no de desarrollo.
+# Vive fuera del repo — este workspace lo comparten los colaboradores.
+content/
+
 # macOS
 .DS_Store

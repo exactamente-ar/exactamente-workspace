@@ -5,6 +5,14 @@ lo que es de todos: metodología, skills, config de agentes, planificación cros
 
 **Setup en una máquina nueva:** `./setup.sh` — cloná este repo, corré eso, y queda todo levantado.
 
+Antes necesitás: `git`, `jq`, `bun`, `pnpm`, `node` 22+, `docker` y `python3`. El script los
+verifica y aborta con la lista si falta alguno. Opcional pero recomendado: `codegraph`
+(`npm i -g @colbymchenry/codegraph`) — sin él, el MCP declarado en `.mcp.json` arranca roto.
+
+Los 5 repos son privados o públicos según el caso, pero todos se clonan igual: **pedí acceso de
+colaborador a la org `exactamente-ar` antes de correr el setup**, o el clone del admin falla y el
+script se corta a la mitad.
+
 ---
 
 ## Regla de oro: abrí Claude acá, no dentro de un repo
@@ -19,8 +27,6 @@ Siempre en la raíz del workspace. No es una preferencia, es cómo funciona la c
 O sea: abriendo acá tenés las skills del workspace **y** el contexto de cada repo cuando entrás a
 sus archivos. Abriendo dentro de `exactamente-backend/` tenés su `CLAUDE.md`, pero perdés todas
 las skills compartidas y BMad.
-
-La única excepción razonable: una sesión de contenido/marketing puede arrancar en `content/`.
 
 ---
 
@@ -86,9 +92,11 @@ git -C exactamente-frontend log --oneline -5
 
 Convenciones, en los 5 repos:
 
-- Ramas: `juanpe44/<nombre-descriptivo>`
+- Ramas: `<tu-usuario>/<nombre-descriptivo>` — tu usuario de GitHub, no el de otro. El prefijo
+  existe para que mirando la lista de ramas se sepa quién tiene qué en vuelo.
 - Commits: [Conventional Commits](https://www.conventionalcommits.org/) — commitlint los valida
-- Autoría: `--author="juanpe44 <juanpe44@users.noreply.github.com>"`
+- Autoría: la de tu `git config`. **No pasar `--author`**: los commits van a nombre de quien los
+  escribe.
 
 ---
 
@@ -98,7 +106,7 @@ El detalle está en `METODOLOGIA.md`. Lo que no se negocia:
 
 1. **El backend se mergea primero.** Ningún cliente mergea contra un contrato que no está en
    `main` del backend.
-2. **Misma rama en cada repo afectado.** `juanpe44/<feature>` en los que toque.
+2. **Misma rama en cada repo afectado.** `<tu-usuario>/<feature>` en los que toque.
 3. **TDD**, con las reglas del repo donde estés parado.
 4. **Un PR por repo**, con CI en verde.
 
@@ -199,6 +207,5 @@ skills-lock.json     skills vendorizadas que no instala BMad — setup.sh verifi
 .codegraph/          índice de los 4 repos — gitignoreado, lo crea setup.sh
 _bmad/               metodología BMad — instalación única, acá
 _bmad-output/        PRDs, épicas, stories, artefactos de test
-content/             community manager — tiene su propio CLAUDE.md
 exactamente-*/        los 4 repos (ignorados, ver repos.json)
 ```

@@ -55,12 +55,15 @@ repos o lo que tiene más de un par de pasos.
 
 ### 2. Rama — el mismo nombre en cada repo
 
+El prefijo es **tu** usuario de GitHub, no el de otro:
+
 ```bash
-git -C exactamente-backend  checkout -b juanpe44/materias-por-plan
-git -C exactamente-frontend checkout -b juanpe44/materias-por-plan
+git -C exactamente-backend  checkout -b <tu-usuario>/materias-por-plan
+git -C exactamente-frontend checkout -b <tu-usuario>/materias-por-plan
 ```
 
-Mismo nombre = mirás la lista de ramas de cualquier repo y sabés qué está en vuelo.
+Mismo nombre en cada repo = mirás la lista de ramas de cualquiera y sabés qué está en vuelo. El
+prefijo = sabés de quién.
 
 ### 3. Implementar — backend primero, siempre
 
@@ -136,8 +139,12 @@ como bloqueante, no vas a poder mergear en rojo.
 
 En los tres protegidos, `restrictions` limita el merge a `juanpe44` y `enforce_admins` está en
 `true`: la protección aplica también a los admins del repo, incluido quien la configuró. Nadie
-mergea en rojo, y los otros dos admins (`d4rm5`, `OliverioBPapuccioF`) no mergean a la rama
-protegida aunque conserven el rol.
+mergea en rojo, y los otros admins no mergean a la rama protegida aunque conserven el rol.
+
+**Si no sos `juanpe44`, esto te afecta directo:** podés abrir PRs y el CI corre igual, pero el
+botón de merge no va a estar disponible ni con todo en verde. Abrí el PR, avisá, y lo mergea él.
+No es un problema de permisos mal puestos: es a propósito, porque mergear a `main` del backend
+despliega a producción.
 
 Consecuencia práctica: si un check requerido no llega a correr —típico en el backend, donde
 `docker` puede no dispararse en un PR que no toca el build— el PR queda bloqueado y **no hay
@@ -182,15 +189,8 @@ mezclaba Subject Groups con detección de duplicados — un revert habría roto 
 
 ## Convenciones de git
 
-- Ramas: `juanpe44/<nombre-descriptivo>`
+- Ramas: `<tu-usuario>/<nombre-descriptivo>` — tu usuario de GitHub
 - Commits: Conventional Commits (`feat:`, `fix:`, `chore:`, `test:`, `docs:`, `refactor:`, `ci:`, `style:`)
-- Autoría: `--author="juanpe44 <juanpe44@users.noreply.github.com>"`
+- Autoría: la de tu `git config`. **No pasar `--author`** — cada uno firma lo suyo
 - Ramas por defecto: `master` en el frontend, `main` en los otros tres
 
----
-
-## Contenido y comunidad
-
-`content/` tiene su propio `CLAUDE.md` con el rol de community manager. Está en este repo
-porque es parte del proyecto, pero no se mezcla con el desarrollo: si vas a trabajar
-contenido, abrí Claude directamente en `content/`.
