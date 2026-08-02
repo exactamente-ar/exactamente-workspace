@@ -2,7 +2,7 @@
 
 Plataforma donde estudiantes de ciencias exactas buscan y comparten recursos universitarios:
 parciales, resúmenes y finales. Hoy en producción en **[exactamente.com.ar](https://exactamente.com.ar)**,
-con Ingeniería en Sistemas (UBA Exactas) y el resto de las carreras en camino.
+con Ingeniería en Sistemas y el resto de las carreras en camino.
 
 Este repositorio **no tiene código de producto**. Orquesta los 4 repos que sí lo tienen, y guarda
 lo que es de todos: metodología, skills, configuración de agentes, planificación cross-repo.
