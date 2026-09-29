@@ -65,17 +65,35 @@ Columnas del tablero:
 | **Inbox** | Entró y nadie lo revisó todavía | Solo: todo issue nuevo cae acá |
 | **Backlog** | Aceptado, no es para ahora. **El orden de arriba hacia abajo es la prioridad** | Triage del maintainer |
 | **Ready** | Refinado, con criterios de aceptación. Se puede tomar | Después de refinarlo (con BMad si hace falta) |
-| **In progress** · **In review** · **Done** | En curso · PR abierto · mergeado | Siguen a los PRs |
+| **In progress** · **In review** · **Done** | En curso · PR abierto · cerrado | In progress al tomarlo; In review y Done solos, con el PR (`Closes #N`) |
 
 **Triage:** revisar Inbox seguido. Cada issue va a Backlog, directo a Ready si ya está claro, o se
 cierra como *not planned*. Refinar es pasar de Backlog a Ready. Lo que se traba discutiéndolo
 lleva el label `needs-discussion`, no una columna aparte.
 
+Todo issue cerrado va a Done, y mover una tarjeta a Done cierra el issue. Lo que se descarta se
+cierra como *not planned*: termina en Done igual, pero se distingue con el filtro
+`reason:"not planned"`.
+
 Solo lo que está en **Ready** se puede tomar: tiene criterios de aceptación y nadie asignado.
 
-En las épicas, cada story tiene que declarar **qué repos toca** y cada archivo de story en
-`_bmad-output/` lleva el link a su issue (`github: exactamente-ar/<repo>#N`). Los sub-issues del
-backend van primero: son los que desbloquean al resto.
+En las épicas, cada story se implementa en **un solo repo** (si toca dos, son dos stories) y
+lleva `**Repo:**`, `**Size:**` y, si hace falta, `**Depends on:**`. BMad ya las genera así: el
+override en `_bmad/custom/bmad-create-epics-and-stories.toml` se lo exige.
+
+**Publicar:** `/exactamente-publish-stories` sobre el `epics.md`. Muestra un preview, y al
+confirmar crea el issue `Epic` en `exactamente-workspace`, un sub-issue por story en su repo, los
+enlaces "bloqueado por" (los clientes quedan bloqueados por la story de backend), los agrega al
+tablero y escribe `github: exactamente-ar/<repo>#N` en el archivo. Es idempotente. Cualquier
+colaborador puede publicar, pero solo quien tiene `admin`/`maintain` en el repo puede mandarlo
+directo a Backlog o Ready; el resto entra en Inbox.
+
+**Tomar:** `/exactamente-take-issue` lista lo que está en Ready sin asignar. Al elegir uno
+verifica que no esté bloqueado, te lo asigna (la asignación es el lock), lo pasa a In progress,
+crea la rama y junta el contexto. **No implementa**: eso lo arrancás vos (`bmad-dev-story`).
+
+Un issue con el label `agent-ready` es chico, tiene criterios testeables y ninguna decisión
+abierta: lo puede tomar un agente. Sin ese label, un agente no lo toma por su cuenta.
 
 ### 2. Rama — el mismo nombre en cada repo
 
