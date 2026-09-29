@@ -43,15 +43,27 @@ en el mismo PR — si no, el `setup.sh` de la próxima persona genera un `.env` 
 
 ## El ciclo de una feature
 
-### 1. Planificar — en el workspace
+### 1. Planificar — en el workspace, publicar en el tablero
 
-Desde la raíz, con BMad. El PRD y las stories quedan en `_bmad-output/planning-artifacts/`.
+Todo el trabajo vive en el **[tablero de la org](https://github.com/orgs/exactamente-ar/projects/2)**.
+Regla: **el issue es la fuente de verdad; el archivo de BMad es el detalle.** Si una story
+existe en `_bmad-output/` pero no como issue, para el resto del equipo no existe.
 
-Cada story tiene que declarar **qué repos toca**. Es la información que evita descubrir a
-mitad de camino que faltaba media feature en otro lado.
+Cuánto se planifica depende del tamaño:
 
-Para algo chico (un fix, un ajuste de copy) esto es innecesario. Se planifica lo que cruza
-repos o lo que tiene más de un par de pasos.
+| Caso | Con BMad | En GitHub |
+|---|---|---|
+| **Bug** | nada, o `bmad-quick-dev` | Issue tipo `Bug` en el repo afectado → **Ready** |
+| **Feature chica** (1 repo, pocas horas) | `bmad-quick-dev` o una spec corta | Issue tipo `Feature` con criterios de aceptación → **Ready** |
+| **Épica** (cruza repos o tiene varias stories) | brief/PRD → `bmad-create-epics-and-stories` | Issue tipo `Epic` en `exactamente-workspace` + un **sub-issue por story** en el repo donde se implementa |
+| **Idea cruda** (de cualquiera) | — | Template "Proponer una idea" → **Ideas**. Se refina con BMad cuando se prioriza |
+
+Columnas del tablero: **Ideas → Needs refinement → Ready → In progress → In review → Done**.
+Solo lo que está en **Ready** se puede tomar: tiene criterios de aceptación y nadie asignado.
+
+En las épicas, cada story tiene que declarar **qué repos toca** y cada archivo de story en
+`_bmad-output/` lleva el link a su issue (`github: exactamente-ar/<repo>#N`). Los sub-issues del
+backend van primero: son los que desbloquean al resto.
 
 ### 2. Rama — el mismo nombre en cada repo
 

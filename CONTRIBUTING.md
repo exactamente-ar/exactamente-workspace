@@ -19,6 +19,23 @@ ciclo completo con los porqués está en [METODOLOGIA.md](METODOLOGIA.md).
 
 ---
 
+## Qué hay para hacer
+
+Todo está en el **[tablero del proyecto](https://github.com/orgs/exactamente-ar/projects/2)**.
+
+- **Para tomar algo:** elegí un issue en **Ready** (si es tu primera vez, buscá
+  `good first issue`), comentá que lo tomás y esperá a que te lo asignen. Así no hay dos
+  personas haciendo lo mismo.
+- **Si tenés una idea o encontraste un bug:** abrí un issue con el template que corresponda.
+  Las ideas entran en **Ideas** y se refinan antes de pasar a **Ready**.
+- **Algo en `needs-discussion`** todavía no tiene una decisión tomada: opiná en el issue, pero no
+  arranques a codear.
+
+Cómo se decide el tamaño de cada cosa (bug, feature, épica) está en
+[METODOLOGIA.md](METODOLOGIA.md#1-planificar--en-el-workspace-publicar-en-el-tablero).
+
+---
+
 ## Regla de oro: abrí tu agente en la raíz del workspace
 
 Si usás Claude Code, Codex o Cursor, abrilos **acá**, no dentro de un repo. No es preferencia:
