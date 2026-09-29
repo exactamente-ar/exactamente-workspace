@@ -27,7 +27,7 @@ Todo está en el **[tablero del proyecto](https://github.com/orgs/exactamente-ar
   `good first issue`), comentá que lo tomás y esperá a que te lo asignen. Así no hay dos
   personas haciendo lo mismo.
 - **Si tenés una idea o encontraste un bug:** abrí un issue con el template que corresponda.
-  Las ideas entran en **Ideas** y se refinan antes de pasar a **Ready**.
+  Entra en **Inbox**; si se acepta pasa a **Backlog**, y se refina antes de llegar a **Ready**.
 - **Algo en `needs-discussion`** todavía no tiene una decisión tomada: opiná en el issue, pero no
   arranques a codear.
 

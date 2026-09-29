@@ -56,9 +56,21 @@ Cuánto se planifica depende del tamaño:
 | **Bug** | nada, o `bmad-quick-dev` | Issue tipo `Bug` en el repo afectado → **Ready** |
 | **Feature chica** (1 repo, pocas horas) | `bmad-quick-dev` o una spec corta | Issue tipo `Feature` con criterios de aceptación → **Ready** |
 | **Épica** (cruza repos o tiene varias stories) | brief/PRD → `bmad-create-epics-and-stories` | Issue tipo `Epic` en `exactamente-workspace` + un **sub-issue por story** en el repo donde se implementa |
-| **Idea cruda** (de cualquiera) | — | Template "Proponer una idea" → **Ideas**. Se refina con BMad cuando se prioriza |
+| **Idea cruda** (de cualquiera) | — | Template "Proponer una idea" → **Inbox**. Se refina con BMad cuando se prioriza |
 
-Columnas del tablero: **Ideas → Needs refinement → Ready → In progress → In review → Done**.
+Columnas del tablero:
+
+| Columna | Qué significa | Cómo llega |
+|---|---|---|
+| **Inbox** | Entró y nadie lo revisó todavía | Solo: todo issue nuevo cae acá |
+| **Backlog** | Aceptado, no es para ahora. **El orden de arriba hacia abajo es la prioridad** | Triage del maintainer |
+| **Ready** | Refinado, con criterios de aceptación. Se puede tomar | Después de refinarlo (con BMad si hace falta) |
+| **In progress** · **In review** · **Done** | En curso · PR abierto · mergeado | Siguen a los PRs |
+
+**Triage:** revisar Inbox seguido. Cada issue va a Backlog, directo a Ready si ya está claro, o se
+cierra como *not planned*. Refinar es pasar de Backlog a Ready. Lo que se traba discutiéndolo
+lleva el label `needs-discussion`, no una columna aparte.
+
 Solo lo que está en **Ready** se puede tomar: tiene criterios de aceptación y nadie asignado.
 
 En las épicas, cada story tiene que declarar **qué repos toca** y cada archivo de story en
