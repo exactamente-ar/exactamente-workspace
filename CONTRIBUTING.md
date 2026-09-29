@@ -25,7 +25,11 @@ Todo está en el **[tablero del proyecto](https://github.com/orgs/exactamente-ar
 
 - **Para tomar algo:** elegí un issue en **Ready** (si es tu primera vez, buscá
   `good first issue`), comentá que lo tomás y esperá a que te lo asignen. Así no hay dos
-  personas haciendo lo mismo.
+  personas haciendo lo mismo. Con un agente: `/exactamente-take-issue` desde la raíz del
+  workspace lo lista, te lo asigna, crea la rama y te arma el contexto — no implementa, eso lo
+  arrancás vos.
+- **Si planificaste algo con BMad:** `/exactamente-publish-stories` sube la épica y sus stories
+  como issues. Cualquiera puede publicar; lo tuyo entra en **Inbox** y un maintainer lo prioriza.
 - **Si tenés una idea o encontraste un bug:** abrí un issue con el template que corresponda.
   Entra en **Inbox**; si se acepta pasa a **Backlog**, y se refina antes de llegar a **Ready**.
 - **Algo en `needs-discussion`** todavía no tiene una decisión tomada: opiná en el issue, pero no

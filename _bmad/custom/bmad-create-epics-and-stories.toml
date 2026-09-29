@@ -1,0 +1,12 @@
+# Team overrides for bmad-create-epics-and-stories.
+# Stories must be publishable as GitHub issues via exactamente-publish-stories.
+
+[workflow]
+
+persistent_facts = [
+  "Every story is implemented in exactly one repo. Add a `**Repo:**` line (exactamente-backend, exactamente-frontend, exactamente-frontend-admin or exactamente-mcp). A story that touches two repos must be split into two stories.",
+  "Every story has a `**Size:**` line: S (hours), M (1-2 days) or L (more; consider splitting).",
+  "Every story that needs another one first has a `**Depends on:**` line with story numbers. Client stories that consume a new or changed API contract depend on the backend story that defines it.",
+]
+
+on_complete = "Offer to run the exactamente-publish-stories skill on the epics.md just saved, to publish the epics and stories as GitHub issues on the org board. Do not run it without the user's confirmation."

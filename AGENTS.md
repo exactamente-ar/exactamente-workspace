@@ -209,7 +209,9 @@ METODOLOGIA.md       cómo se trabaja una feature, de punta a punta
 setup.sh             levanta todo en una máquina nueva
 repos.json           mapa de los 4 repos (url, rama, gestor, puerto)
 skills-lock.json     skills vendorizadas que no instala BMad — setup.sh verifica sus hashes
-.claude/skills/      skills compartidas + las de BMad
+.claude/skills/      skills compartidas + las de BMad; propias: exactamente-publish-stories
+                     (épica BMad → issues en el tablero) y exactamente-take-issue (tomar un issue)
+_bmad/custom/        overrides de equipo de BMad (las stories salen publicables)
 .claude/settings.json  permisos de codegraph + superpowers off (BMad es la metodología acá)
 .claude/hooks/       avisos automáticos — hoy solo el drift de openapi.json
 .mcp.json            servidores MCP del workspace (codegraph)
