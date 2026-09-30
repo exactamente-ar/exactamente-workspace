@@ -4,11 +4,11 @@
     {
       "name": "exactamente-backend",
       "url": "https://github.com/exactamente-ar/exactamente-backend.git",
-      "branch": "main",
+      "branch": "develop",
       "pm": "bun",
       "port": 3000,
       "description": "API REST — Bun + Hono + Drizzle + PostgreSQL + R2",
-      "deploy": "Dokploy (Hetzner) — auto-deploy al pushear a main",
+      "deploy": "Dokploy (Hetzner) — auto-deploy al pushear a main (se llega por release desde develop)",
       "needsDocker": true
     },
     {

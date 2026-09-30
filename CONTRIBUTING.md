@@ -54,17 +54,21 @@ desde adentro de un repo perdés las skills compartidas y BMad.
 ### 1. Rama — el mismo nombre en cada repo que toques
 
 ```bash
-git -C exactamente-backend  checkout -b <tu-usuario>/materias-por-plan
-git -C exactamente-frontend checkout -b <tu-usuario>/materias-por-plan
+git -C exactamente-backend  checkout -b <tu-usuario>/materias-por-plan origin/develop
+git -C exactamente-frontend checkout -b <tu-usuario>/materias-por-plan origin/master
 ```
+
+En el backend, desde **`develop`**. En los clientes, desde su rama principal. Ver
+[Releases](#releases).
 
 El prefijo es **tu** usuario de GitHub. Mismo nombre en cada repo = mirando la lista de ramas de
 cualquiera sabés qué está en vuelo y de quién.
 
 ### 2. Backend primero, siempre
 
-**El contrato de la API se define y se mergea en `main` del backend antes de que cualquier
-cliente lo consuma.** Nadie escribe a mano los tipos de la API: el backend publica el spec y los
+**El contrato de la API tiene que estar en `main` del backend antes de que cualquier cliente lo
+consuma.** En el backend eso significa release (`develop` → `main`): mergear a `develop` no
+alcanza, porque el `check:api` de los clientes lee el spec de `main`. Nadie escribe a mano los tipos de la API: el backend publica el spec y los
 3 clientes generan sus tipos desde ahí.
 
 Si tu cambio toca la forma de una respuesta:
@@ -116,8 +120,8 @@ En el cuerpo: qué cambia, por qué, y cómo verificarlo. CI en verde es requisi
 
 ### 7. Mergear en orden de dependencia
 
-**backend → clientes.** Nunca al revés. Y acordate de lo que significa en el backend: mergear a
-`main` despliega a `api.exactamente.com.ar` automáticamente. No es un merge más.
+**backend → release del backend → clientes.** Nunca al revés. Y acordate de lo que significa el
+release: llegar a `main` despliega a `api.exactamente.com.ar` automáticamente. No es un merge más.
 
 ### 8. Cerrar
 
@@ -129,7 +133,7 @@ Borrá las ramas mergeadas. Los artefactos de la feature quedan en `_bmad-output
 
 | Repo | Rama protegida | Checks requeridos | Quién mergea |
 |---|---|---|---|
-| `exactamente-backend` | `main` | `quality`, `docker` | solo `juanpe44` |
+| `exactamente-backend` | `main`, `develop` | `quality`, `docker` | solo `juanpe44` |
 | `exactamente-frontend` | `master` | `quality` | solo `juanpe44` |
 | `exactamente-mcp` | `main` | `quality` | solo `juanpe44` |
 | `exactamente-frontend-admin` | — | **sin protección** | cualquiera con write |
@@ -141,6 +145,61 @@ puesto — es a propósito, porque mergear a `main` del backend despliega a prod
 El admin es la excepción y no por decisión: es el único repo privado, y GitHub no permite branch
 protection en repos privados fuera del plan Pro. El CI corre y falla igual, pero nada impide
 mergear en rojo. Ahí la disciplina es manual: **mirá el check antes de mergear.**
+
+---
+
+## Releases
+
+Esquema híbrido. El backend usa Git Flow liviano, porque su `main` despliega a producción con
+migraciones incluidas y conviene que eso sea un acto aparte. Los clientes usan GitHub Flow: Vercel
+y Cloudflare ya dan previews y rollback.
+
+En los 4, [release-please](https://github.com/googleapis/release-please) mantiene abierto un
+**Release PR** (`chore(<rama>): release X.Y.Z`) que acumula el `CHANGELOG.md` y sube la versión
+según los commits:
+
+| Commit | Versión |
+|---|---|
+| `fix:` | patch — `1.2.3` → `1.2.4` |
+| `feat:` | minor — `1.2.3` → `1.3.0` |
+| `feat!:` o footer `BREAKING CHANGE:` | major — `1.2.3` → `2.0.0` |
+
+Mergear el Release PR crea el tag `vX.Y.Z` y el GitHub Release. **Versión, tags y
+`CHANGELOG.md` no se tocan a mano.**
+
+### Clientes (frontend, admin, mcp)
+
+La rama sale de `master`/`main` y el PR vuelve ahí. Cuando quieras cortar versión, mergeás el
+Release PR. Nada más.
+
+### Backend
+
+| Rama | Sale de | PR a | Para qué |
+|---|---|---|---|
+| `<tu-usuario>/<feature>` | `develop` | `develop` | Features y fixes normales |
+| `develop` | — | `main` | Release: lo que llega a producción |
+| `<tu-usuario>/<hotfix>` | `main` | `main` | Hotfix urgente de producción |
+
+**Release:**
+
+1. Mergear el Release PR en `develop` → queda el tag.
+2. PR `develop` → `main`, mergeado con **merge commit** (nunca squash ni rebase: el commit del
+   tag tiene que quedar en la historia de `main`). Eso despliega.
+
+**Hotfix:** solo para algo roto en producción que no puede esperar lo que hay en `develop`.
+
+1. Rama desde `main`, PR a `main`. Al mergear, despliega.
+2. PR `main` → `develop` con merge commit. **No es opcional**: sin él, el próximo release no
+   trae el fix y lo pisa.
+
+El hotfix no tiene tag propio: sale en el CHANGELOG del próximo release.
+
+### El token
+
+El workflow usa el secret de org `RELEASE_PLEASE_TOKEN`, un PAT con `contents` y
+`pull-requests` en escritura sobre los 4 repos. `GITHUB_TOKEN` no sirve por dos motivos: la org
+no deja que Actions abra PRs, y un PR abierto con ese token no dispara el CI, así que el Release
+PR quedaría trabado por los checks requeridos.
 
 ---
 

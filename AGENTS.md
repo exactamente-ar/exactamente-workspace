@@ -39,14 +39,15 @@ las skills compartidas y BMad.
 
 | Repo | Qué es | Stack | PM | Dev | Rama | Deploy |
 |---|---|---|---|---|---|---|
-| `exactamente-backend` | API REST | Bun · Hono · Drizzle · PostgreSQL · R2 | bun | `:3000` | `main` | **Dokploy (Hetzner)** |
+| `exactamente-backend` | API REST | Bun · Hono · Drizzle · PostgreSQL · R2 | bun | `:3000` | `develop` → `main` | **Dokploy (Hetzner)** |
 | `exactamente-frontend` | Sitio público | Astro 5 + islands de React | pnpm | `:4321` | `master` | Vercel |
 | `exactamente-frontend-admin` | Panel admin | React 19 + Vite | pnpm | `:5173` | `main` | Vercel |
 | `exactamente-mcp` | Servidor MCP | xmcp · Cloudflare Workers | pnpm | `:3001` | `main` | Cloudflare |
 
 Ojo con dos cosas que se confunden seguido:
 
-- **El frontend usa `master`, el resto `main`.** No es un error, es así.
+- **El backend trabaja sobre `develop`; los clientes, directo sobre su rama principal** (`master`
+  en el frontend, `main` en admin y mcp). Ver "Releases" más abajo.
 - **El backend no usa pnpm, usa bun.** Correr `pnpm install` ahí rompe cosas.
 
 Cada repo tiene su propia documentación (`CLAUDE.md` o `AGENTS.md`) con sus reglas, comandos y
@@ -69,7 +70,8 @@ No hay paso manual en el medio: mergear a `main` = deploy a `api.exactamente.com
 
 Consecuencias prácticas:
 
-- Nada de push directo a `main`. Todo por PR, con CI en verde.
+- Nada de push directo a `main`. Todo por PR, con CI en verde. A `main` solo llegan el PR de
+  release (`develop` → `main`) y los hotfixes.
 - El `Dockerfile` corre `bun run db:migrate` en cada arranque → **toda migración que llegue a
   `main` se auto-aplica en producción**. Pensá dos veces antes de agregar un `.sql`.
 - El `Dockerfile` solo copia `src`, `scripts`, `drizzle.config.ts`, `tsconfig.json`,
@@ -103,14 +105,34 @@ Convenciones, en los 5 repos:
 - Autoría: la de tu `git config`. **No pasar `--author`**: los commits van a nombre de quien los
   escribe.
 
+### Releases
+
+Esquema híbrido: Git Flow liviano en el backend, GitHub Flow en los clientes. En los 4,
+[release-please](https://github.com/googleapis/release-please) mantiene un **Release PR** que sube
+la versión y escribe `CHANGELOG.md` desde los Conventional Commits. Mergearlo crea el tag
+`vX.Y.Z` y el GitHub Release. **Versión, tags y `CHANGELOG.md` no se editan a mano.**
+
+| Repo | Ramas de trabajo salen de | Release PR sobre | Producción |
+|---|---|---|---|
+| backend | `develop` | `develop` | PR `develop` → `main`, con **merge commit** |
+| frontend | `master` | `master` | mergear el PR de trabajo |
+| admin, mcp | `main` | `main` | mergear el PR de trabajo |
+
+Hotfix del backend: rama desde `main` → PR a `main` → PR `main` → `develop` (obligatorio, o el
+próximo release lo pisa). Detalle en `CONTRIBUTING.md`.
+
+El workflow usa el secret de org `RELEASE_PLEASE_TOKEN`: la org no deja que Actions abra PRs con
+`GITHUB_TOKEN`, y un PR abierto con ese token no dispararía el CI.
+
 ---
 
 ## Trabajar una feature que cruza repos
 
 El detalle está en `METODOLOGIA.md`. Lo que no se negocia:
 
-1. **El backend se mergea primero.** Ningún cliente mergea contra un contrato que no está en
-   `main` del backend.
+1. **El backend se releasea primero.** Ningún cliente mergea contra un contrato que no está en
+   `main` del backend, y al backend se llega por `develop` → `main`: mergear a `develop` no
+   alcanza.
 2. **Misma rama en cada repo afectado.** `<tu-usuario>/<feature>` en los que toque.
 3. **TDD**, con las reglas del repo donde estés parado.
 4. **Un PR por repo**, con CI en verde.
@@ -144,7 +166,8 @@ backend y `check:api` en cada cliente fallan si lo commiteado no coincide con lo
 convierte el olvido en imposible, en vez de improbable.
 
 El orden "backend primero" ya no es solo disciplina: los clientes leen el spec del `main` del
-backend, así que no pueden mergear contra un contrato que todavía no está mergeado.
+backend, así que no pueden mergear contra un contrato que todavía no está releaseado. Una épica
+con cambio de contrato necesita un release del backend a mitad de camino.
 
 Hay un hook que avisa en el momento: al editar `src/schemas/`, si `openapi.json` quedó atrás,
 `.claude/hooks/openapi-drift.sh` lo dice sin esperar al CI. Se apaga solo al regenerar.

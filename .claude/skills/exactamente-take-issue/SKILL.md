@@ -18,8 +18,9 @@ hands over the context. Implementation is a separate step the user starts.
 - Only take issues in **Ready**, unassigned, with every `blocked_by` issue closed.
 - Assignment is the lock: assign yourself before anything else; if someone is assigned, abort.
 - An agent acting without a human in the loop only takes issues labeled `agent-ready`.
-- Branch: `<gh-user>/<slug>` (login lowercased: `JuanPE44` → `juanpe44`) in the issue's repo, from its default branch (`master` in
-  `exactamente-frontend`, `main` elsewhere). Same slug in every repo of the same epic.
+- Branch: `<gh-user>/<slug>` (login lowercased: `JuanPE44` → `juanpe44`) in the issue's repo, from its default branch (`develop` in
+  `exactamente-backend`, `master` in `exactamente-frontend`, `main` in admin and mcp). Never branch a
+  backend feature from `main`: that is only for hotfixes. Same slug in every repo of the same epic.
 - Never write code, commit, push, or open a PR from this skill.
 - Work from the workspace root; use `git -C <repo>`.
 

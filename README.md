@@ -46,14 +46,15 @@ Solo el backend necesita Docker corriendo.
 
 | Repo | Qué es | Stack | Gestor | Rama | Deploy |
 |---|---|---|---|---|---|
-| [`exactamente-backend`](https://github.com/exactamente-ar/exactamente-backend) | API REST | Bun · Hono · Drizzle · PostgreSQL · R2 | bun | `main` | Dokploy (Hetzner) |
+| [`exactamente-backend`](https://github.com/exactamente-ar/exactamente-backend) | API REST | Bun · Hono · Drizzle · PostgreSQL · R2 | bun | `develop` → `main` | Dokploy (Hetzner) |
 | [`exactamente-frontend`](https://github.com/exactamente-ar/exactamente-frontend) | Sitio público | Astro 5 + islands de React | pnpm | `master` | Vercel |
 | [`exactamente-frontend-admin`](https://github.com/exactamente-ar/exactamente-frontend-admin) | Panel admin | React 19 + Vite | pnpm | `main` | Vercel |
 | [`exactamente-mcp`](https://github.com/exactamente-ar/exactamente-mcp) | Servidor MCP | xmcp · Cloudflare Workers | pnpm | `main` | Cloudflare |
 
 Dos cosas que se confunden seguido:
 
-- **El frontend usa `master`, el resto `main`.** No es un error, es así.
+- **El backend trabaja sobre `develop`**, y `main` recibe solo releases y hotfixes. Los clientes
+  trabajan directo sobre su rama principal: `master` en el frontend, `main` en admin y mcp.
 - **El backend no usa pnpm, usa bun.** Correr `pnpm install` ahí rompe cosas.
 
 Los 4 repos están en `.gitignore` — este workspace los clona pero no los versiona. No hay
@@ -68,7 +69,8 @@ git -C exactamente-backend status
 ## ⚠️ Producción
 
 **`main` del backend está en producción.** Dokploy buildea y redespliega solo al pushear: mergear
-a `main` = deploy a `api.exactamente.com.ar`. No hay paso manual en el medio, y cada arranque
+a `main` = deploy a `api.exactamente.com.ar`. Por eso en el backend se trabaja sobre `develop` y a
+`main` se llega con un release. No hay paso manual en el medio, y cada arranque
 corre las migraciones pendientes.
 
 `master` del frontend también es producción, pero Vercel da preview deploys y rollback de un
