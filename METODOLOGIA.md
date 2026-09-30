@@ -100,17 +100,21 @@ abierta: lo puede tomar un agente. Sin ese label, un agente no lo toma por su cu
 El prefijo es **tu** usuario de GitHub, no el de otro:
 
 ```bash
-git -C exactamente-backend  checkout -b <tu-usuario>/materias-por-plan
-git -C exactamente-frontend checkout -b <tu-usuario>/materias-por-plan
+git -C exactamente-backend  checkout -b <tu-usuario>/materias-por-plan origin/develop
+git -C exactamente-frontend checkout -b <tu-usuario>/materias-por-plan origin/master
 ```
+
+En el backend la rama sale de **`develop`**; en los clientes, de su rama principal. El flujo
+completo de ramas y versiones está en "Releases" del `CONTRIBUTING.md`.
 
 Mismo nombre en cada repo = mirás la lista de ramas de cualquiera y sabés qué está en vuelo. El
 prefijo = sabés de quién.
 
 ### 3. Implementar — backend primero, siempre
 
-**El contrato de la API se define y se mergea en `main` del backend antes de que cualquier
-cliente lo consuma.**
+**El contrato de la API tiene que estar en `main` del backend antes de que cualquier cliente lo
+consuma.** Como el backend integra en `develop`, eso implica un release (`develop` → `main`) a
+mitad de la épica, antes de mergear los clientes.
 
 Esto ya no depende de que te acuerdes. Si tu feature cambia una respuesta:
 
@@ -120,7 +124,7 @@ cd ../exactamente-frontend-admin && pnpm gen:api  # arreglá lo que TS marque
 ```
 
 Los clientes leen el spec del `main` del backend, así que su CI falla si intentás mergear
-contra un contrato que todavía no está mergeado. Y si cambiaste el código del backend sin
+contra un contrato que todavía no está releaseado. Y si cambiaste el código del backend sin
 regenerar, `check:openapi` te frena ahí mismo.
 
 Antes esto era solo disciplina, y por eso murió `materias-agrupadas`: se mergeó en el admin con
@@ -174,7 +178,7 @@ como bloqueante, no vas a poder mergear en rojo.
 
 | Repo | Rama protegida | Checks requeridos | Quién puede mergear |
 |---|---|---|---|
-| `exactamente-backend` | `main` | `quality`, `docker` | solo `juanpe44` |
+| `exactamente-backend` | `main`, `develop` | `quality`, `docker` | solo `juanpe44` |
 | `exactamente-frontend` | `master` | `quality` | solo `juanpe44` |
 | `exactamente-mcp` | `main` | `quality` | solo `juanpe44` |
 | `exactamente-frontend-admin` | — | **sin protección** | cualquiera con write |
@@ -201,10 +205,13 @@ En el cuerpo del PR: qué cambia, por qué, y cómo verificarlo.
 
 ### 7. Mergear en orden de dependencia
 
-**backend → clientes.** Nunca al revés.
+**backend (a `develop`) → release del backend (`develop` → `main`) → clientes.** Nunca al revés.
 
-Acordate de lo que significa en el backend: mergear a `main` **despliega a producción**
-automáticamente vía Dokploy. No es un merge más.
+Acordate de lo que significa el release: llegar a `main` **despliega a producción**
+automáticamente vía Dokploy, migraciones incluidas. No es un merge más.
+
+Los clientes cortan versión cuando se mergea su Release PR; el backend, en su release. Ver
+"Releases" en el `CONTRIBUTING.md`.
 
 ### 8. Cerrar
 
@@ -234,5 +241,6 @@ mezclaba Subject Groups con detección de duplicados — un revert habría roto 
 - Ramas: `<tu-usuario>/<nombre-descriptivo>` — tu usuario de GitHub
 - Commits: Conventional Commits (`feat:`, `fix:`, `chore:`, `test:`, `docs:`, `refactor:`, `ci:`, `style:`)
 - Autoría: la de tu `git config`. **No pasar `--author`** — cada uno firma lo suyo
-- Ramas por defecto: `master` en el frontend, `main` en los otros tres
+- Ramas por defecto: `develop` en el backend, `master` en el frontend, `main` en admin y mcp
+- Versión, tags y `CHANGELOG.md`: los maneja release-please, nunca a mano
 
