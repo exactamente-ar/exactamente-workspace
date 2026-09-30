@@ -107,7 +107,7 @@ Convenciones, en los 5 repos:
 
 ### Releases
 
-Esquema híbrido: Git Flow liviano en el backend, GitHub Flow en los clientes. En los 4,
+Esquema híbrido: Git Flow liviano en el backend, GitHub Flow en los clientes. En backend, frontend y mcp,
 [release-please](https://github.com/googleapis/release-please) mantiene un **Release PR** que sube
 la versión y escribe `CHANGELOG.md` desde los Conventional Commits. Mergearlo crea el tag
 `vX.Y.Z` y el GitHub Release. **Versión, tags y `CHANGELOG.md` no se editan a mano.**
@@ -116,7 +116,8 @@ la versión y escribe `CHANGELOG.md` desde los Conventional Commits. Mergearlo c
 |---|---|---|---|
 | backend | `develop` | `develop` | PR `develop` → `main`, con **merge commit** |
 | frontend | `master` | `master` | mergear el PR de trabajo |
-| admin, mcp | `main` | `main` | mergear el PR de trabajo |
+| mcp | `main` | `main` | mergear el PR de trabajo |
+| admin | `main` | — **sin release-please** | mergear el PR de trabajo |
 
 Hotfix del backend: rama desde `main` → PR a `main` → PR `main` → `develop` (obligatorio, o el
 próximo release lo pisa). Detalle en `CONTRIBUTING.md`.
