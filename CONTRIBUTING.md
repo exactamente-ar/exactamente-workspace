@@ -201,6 +201,12 @@ El workflow usa el secret de org `RELEASE_PLEASE_TOKEN`, un PAT con `contents` y
 no deja que Actions abra PRs, y un PR abierto con ese token no dispara el CI, así que el Release
 PR quedaría trabado por los checks requeridos.
 
+**Excepción: el admin.** Es privado y el plan Free no comparte secrets de org con repos privados,
+así que ahí el mismo token se carga como secret **del repo**:
+`gh secret set RELEASE_PLEASE_TOKEN -R exactamente-ar/exactamente-frontend-admin`. Y el token tiene
+que incluir ese repo en *Repository access*: si no, el workflow falla con `Not Found`. Al rotar el
+token, actualizá el secret de org **y** el del admin.
+
 ---
 
 ## Antes de cambiar algo compartido
