@@ -21,6 +21,10 @@ hands over the context. Implementation is a separate step the user starts.
 - Branch: `<gh-user>/<slug>` (login lowercased: `JuanPE44` → `juanpe44`) in the issue's repo, from its default branch (`develop` in
   `exactamente-backend`, `master` in `exactamente-frontend`, `main` in admin and mcp). Never branch a
   backend feature from `main`: that is only for hotfixes. Same slug in every repo of the same epic.
+- **Epic integration branch:** if the parent epic body has a line `Rama de integración: <repo>
+  \`<branch>\``, and the issue's repo matches, branch from `origin/<branch>` instead of the default
+  branch and tell the user the PR must target `<branch>`, never the default branch (production).
+  The story branch slug then comes from the issue title, since the epic name is the integration branch.
 - Never write code, commit, push, or open a PR from this skill.
 - Work from the workspace root; use `git -C <repo>`.
 
@@ -42,8 +46,10 @@ hands over the context. Implementation is a separate step the user starts.
 1. Resolve `owner/repo#N`. Read the issue: `gh issue view N -R ... --json title,body,assignees,labels,state,projectItems`.
 2. Run the checks from Decision Gates (blockers: `gh api repos/exactamente-ar/<repo>/issues/N/dependencies/blocked_by`).
 3. Claim: `--add-assignee @me`, then set Status In progress (`../exactamente-publish-stories/references/board.md`).
-4. Branch: `git -C <repo> fetch`, then `git -C <repo> checkout -b <gh-user>/<slug> origin/<default>`.
-   Derive `<slug>` from the epic name for epic sub-issues, else from the title (kebab-case, short).
+4. Branch: `git -C <repo> fetch`, then `git -C <repo> checkout -b <gh-user>/<slug> origin/<base>`,
+   where `<base>` is the epic integration branch if one applies (see Hard Rules), else the default.
+   Derive `<slug>` from the epic name for epic sub-issues without an integration branch, else from
+   the title (kebab-case, short).
 5. Gather context: issue body, the linked `epics.md` story section, the parent epic, and the
    repo's `CLAUDE.md`/`AGENTS.md` (for `exactamente-mcp`: `package.json` + `lefthook.yml`).
 6. Report and stop.
@@ -53,7 +59,9 @@ hands over the context. Implementation is a separate step the user starts.
 Return: issue link and title, branch name, acceptance criteria as a checklist, contract impact
 (does it need `gen:openapi`/`gen:api`), repo rules that matter, and the suggested next step:
 `bmad-dev-story` with this issue, then a PR with `Closes exactamente-ar/<repo>#N`.
-Mention that In review/Done move automatically with the PR.
+Mention that In review/Done move automatically with the PR. Exception: when the PR targets an epic
+integration branch, `Closes` does not fire on merge (GitHub only closes on the default branch), so
+the issue must be closed and moved to Done by hand.
 
 ## References
 
