@@ -22,7 +22,7 @@ FR3: La facultad elegida se guarda en el navegador y se mantiene en visitas post
 FR4: El hero de la home muestra la facultad actual: nombre, imagen y descripción.
 FR5: Desde el hero, el usuario puede cambiar de facultad.
 FR6: El hero muestra los links rápidos de la facultad actual agrupados por sección (por ejemplo Ingreso o Grupos de estudio).
-FR7: Todo el sitio aplica el color de la facultad actual a sus gradientes y acentos: Exactas amarillo, Económicas morado, Veterinarias verde y Humanas celeste.
+FR7: Todo el sitio aplica el color de la facultad actual a sus gradientes y acentos: Exactas amarillo, Veterinarias violeta, Humanas naranja y Económicas celeste.
 FR8: Los filtros de materias de la home (carrera, plan, año) muestran solo opciones de la facultad actual.
 FR9: El formulario de subida de recursos permite elegir facultad; arranca con la facultad actual y trae las carreras y materias de la que se elija.
 FR10: Un administrador puede editar la imagen y la descripción de cada facultad desde el panel admin.
@@ -100,7 +100,7 @@ So that sienta que la página es de mi facultad y no la de otra.
 
 **Acceptance Criteria:**
 
-**Given** existe un mapa `slug de facultad → paleta` en el frontend con Exactas (amarillo), Económicas (morado), Veterinarias (verde) y Humanas (celeste)
+**Given** existe un mapa `slug de facultad → paleta` en el frontend con Exactas (amarillo), Veterinarias (violeta), Humanas (naranja) y Económicas (celeste)
 **When** la facultad actual es cualquiera de las 4
 **Then** los gradientes y acentos de todo el sitio usan la paleta de esa facultad mediante tokens CSS globales, sin colores fijos por componente (FR7)
 **And** cambiar la facultad actual cambia el tema sin recargar la página (NFR2)
