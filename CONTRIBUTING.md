@@ -154,7 +154,7 @@ Esquema híbrido. El backend usa Git Flow liviano, porque su `main` despliega a 
 migraciones incluidas y conviene que eso sea un acto aparte. Los clientes usan GitHub Flow: Vercel
 y Cloudflare ya dan previews y rollback.
 
-En los 4, [release-please](https://github.com/googleapis/release-please) mantiene abierto un
+En backend, frontend y mcp, [release-please](https://github.com/googleapis/release-please) mantiene abierto un
 **Release PR** (`chore(<rama>): release X.Y.Z`) que acumula el `CHANGELOG.md` y sube la versión
 según los commits:
 
@@ -167,10 +167,14 @@ según los commits:
 Mergear el Release PR crea el tag `vX.Y.Z` y el GitHub Release. **Versión, tags y
 `CHANGELOG.md` no se tocan a mano.**
 
-### Clientes (frontend, admin, mcp)
+### Clientes (frontend, mcp)
 
 La rama sale de `master`/`main` y el PR vuelve ahí. Cuando quieras cortar versión, mergeás el
 Release PR. Nada más.
+
+**El admin no tiene versionado** por ahora: es privado, y el plan Free no comparte secrets de org
+con repos privados, así que necesitaría su propio secret y mantenerlo al rotar el token. Se puede
+sumar más adelante copiando el workflow de `exactamente-mcp`.
 
 ### Backend
 
@@ -197,7 +201,7 @@ El hotfix no tiene tag propio: sale en el CHANGELOG del próximo release.
 ### El token
 
 El workflow usa el secret de org `RELEASE_PLEASE_TOKEN`, un PAT con `contents` y
-`pull-requests` en escritura sobre los 4 repos. `GITHUB_TOKEN` no sirve por dos motivos: la org
+`pull-requests` en escritura sobre backend, frontend y mcp. `GITHUB_TOKEN` no sirve por dos motivos: la org
 no deja que Actions abra PRs, y un PR abierto con ese token no dispara el CI, así que el Release
 PR quedaría trabado por los checks requeridos.
 
